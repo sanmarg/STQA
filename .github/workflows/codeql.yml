@@ -23,7 +23,18 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: 'javascript, python, java'
+          languages: 'java, javascript, python'
+          build-mode: "manual"
+
+      - name: Build Java Project
+        run: |
+          if [ -f "pom.xml" ]; then
+            mvn clean package
+          elif [ -f "build.gradle" ]; then
+            gradle build
+          else
+            echo "No Java build system detected. Skipping."
+          fi
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
