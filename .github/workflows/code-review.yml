@@ -1,0 +1,88 @@
+name: Automated Code Review
+
+on:
+  push:
+    branches:
+      - release
+  pull_request:
+    branches:
+      - release
+
+jobs:
+  code-review:
+    name: Run Code Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Setup Node.js for ESLint (JavaScript)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install ESLint
+        run: npm install -g eslint
+
+      # Setup Java for Checkstyle
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download Checkstyle
+        run: wget -O checkstyle.jar https://github.com/checkstyle/checkstyle/releases/download/checkstyle-10.12.0/checkstyle-10.12.0-all.jar
+
+      # Setup Python for Pylint
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Pylint
+        run: pip install pylint
+
+      # Run ESLint (JavaScript)
+      - name: Run ESLint
+        run: eslint path/to/javascript/files --format json > eslint_report.json || true
+
+      # Run Checkstyle (Java)
+      - name: Run Checkstyle
+        run: java -jar checkstyle.jar -c /google_checks.xml path/to/java/files > checkstyle_report.txt || true
+
+      # Run Pylint (Python)
+      - name: Run Pylint
+        run: pylint path/to/python/files --output-format=json > pylint_report.json || true
+
+      # Setup GitHub CodeQL for Security Analysis
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: 'javascript, java, python'
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+      # Upload ESLint Report
+      - name: Upload ESLint Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: eslint-report
+          path: eslint_report.json
+
+      # Upload Checkstyle Report
+      - name: Upload Checkstyle Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: checkstyle-report
+          path: checkstyle_report.txt
+
+      # Upload Pylint Report
+      - name: Upload Pylint Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: pylint-report
+          path: pylint_report.json
