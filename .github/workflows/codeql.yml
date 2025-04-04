@@ -15,10 +15,17 @@ jobs:
       security-events: write
       actions: read
       contents: read
+      id-token: write  # Added for better security
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -26,10 +33,18 @@ jobs:
           languages: 'java, javascript, python'
           build-mode: "manual"
 
+      - name: Install Build Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y maven gradle
+
       - name: Build Java Project
         run: |
           if [ -f "pom.xml" ]; then
-            mvn clean package
+            mvn -B clean package
+          elif [ -f "gradlew" ]; then
+            chmod +x gradlew
+            ./gradlew build
           elif [ -f "build.gradle" ]; then
             gradle build
           else
@@ -38,4 +53,3 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-
