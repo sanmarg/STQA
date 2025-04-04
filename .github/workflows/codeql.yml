@@ -27,11 +27,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Initialize CodeQL
+      - name: Initialize CodeQL (Java, Python)
         uses: github/codeql-action/init@v3
         with:
-          languages: 'java, javascript, python'
+          languages: 'java, python'
           build-mode: "manual"
+
+      - name: Initialize CodeQL (JavaScript)
+        uses: github/codeql-action/init@v3
+        with:
+          languages: 'javascript'
+          build-mode: "none"
 
       - name: Install Build Tools
         run: |
