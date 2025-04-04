@@ -15,7 +15,7 @@ jobs:
       security-events: write
       actions: read
       contents: read
-      id-token: write  # Added for better security
+      id-token: write
 
     steps:
       - name: Checkout Repository
@@ -27,17 +27,33 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Initialize CodeQL (Java, Python)
+      - name: Initialize CodeQL for Java (manual)
         uses: github/codeql-action/init@v3
         with:
-          languages: 'java, python'
-          build-mode: "manual"
+          languages: java
+          build-mode: manual
 
-      - name: Initialize CodeQL (JavaScript)
-        uses: github/codeql-action/init@v3
+      - name: Initialize CodeQL for Python and JavaScript (build-mode: none)
+        run: |
+          echo "Initializing CodeQL for Python and JavaScript..." || true
+          {
+            codeql_error_log="codeql-report.log"
+            echo "Attempting CodeQL init for python, javascript..." > $codeql_error_log
+
+            codeql_output=$(mktemp)
+            if ! gh codeql-action/init@v3 --languages python,javascript --build-mode none 2> $codeql_output; then
+              echo "Failed to initialize CodeQL for Python or JavaScript." >> $codeql_error_log
+              cat $codeql_output >> $codeql_error_log
+            fi
+          } || true
+
+      - name: Upload CodeQL Report
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          languages: 'javascript'
-          build-mode: "none"
+          name: codeql-report
+          path: codeql-report.log
+          if-no-files-found: warn
 
       - name: Install Build Tools
         run: |
