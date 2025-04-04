@@ -20,15 +20,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Pylint
-        run: pip install pylint
+      - name: Install Dependencies
+        run: |
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+          fi
+          pip install pylint
 
       - name: Run Pylint on Python Files
-        run: pylint --output-format=json **/*.py > pylint-report.json || true
+        run: |
+          pylint $(find . -name "*.py") --output-format=json > pylint-report.json
+        continue-on-error: true
 
       - name: Upload Lint Report
         uses: actions/upload-artifact@v4
         with:
           name: pylint-report
           path: pylint-report.json
-
