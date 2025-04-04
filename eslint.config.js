@@ -1,6 +1,6 @@
-import stylistic from "@stylistic/eslint-plugin-js";
+const stylistic = require("@stylistic/eslint-plugin-js");
 
-export default [
+module.exports = [
   {
     files: ["**/*.js"],
     plugins: { stylistic },
@@ -10,3 +10,4 @@ export default [
     },
   },
 ];
+
