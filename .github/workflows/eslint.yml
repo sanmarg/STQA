@@ -1,4 +1,4 @@
-name: GitHub CodeQL Analysis
+name: GitHub ESLint Analysis
 
 on:
   push:
@@ -30,9 +30,15 @@ jobs:
         run: |
           npm install --save-dev eslint @stylistic/eslint-plugin-js
 
-      - name: Run ESLint
+      - name: Run ESLint and write report
         run: |
-          npx eslint "**/*.js" --format json --output-file eslint-report.json || true
+          npx eslint "**/*.js" --format json | tee eslint-report.json || true
+
+      - name: Ensure ESLint Report Exists
+        run: |
+          if [ ! -f eslint-report.json ]; then
+            echo "[]" > eslint-report.json
+          fi
 
       - name: Upload ESLint Report
         uses: actions/upload-artifact@v4
