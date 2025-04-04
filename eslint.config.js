@@ -1,14 +1,12 @@
+import stylistic from "@stylistic/eslint-plugin-js";
+
 export default [
   {
     files: ["**/*.js"],
-    languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
-    },
+    plugins: { stylistic },
     rules: {
-      semi: ["error", "always"],
-      quotes: ["error", "double"],
-      "no-unused-vars": "warn",
+      "@stylistic/js/semi": ["error", "always"],
+      "@stylistic/js/quotes": ["error", "double"],
     },
   },
 ];
