@@ -27,25 +27,30 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Initialize CodeQL for Java (manual)
+      - name: Initialize CodeQL for Java
         uses: github/codeql-action/init@v3
         with:
           languages: java
           build-mode: manual
 
-      - name: Initialize CodeQL for Python and JavaScript (build-mode: none)
-        run: |
-          echo "Initializing CodeQL for Python and JavaScript..." || true
-          {
-            codeql_error_log="codeql-report.log"
-            echo "Attempting CodeQL init for python, javascript..." > $codeql_error_log
+      - name: Initialize CodeQL for JavaScript
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          build-mode: none
 
+      - name: Attempt CodeQL Init for Python (fallback mode)
+        run: |
+          echo "Python does not support manual build mode. Using fallback init." > codeql-report.log
+          {
             codeql_output=$(mktemp)
-            if ! gh codeql-action/init@v3 --languages python,javascript --build-mode none 2> $codeql_output; then
-              echo "Failed to initialize CodeQL for Python or JavaScript." >> $codeql_error_log
-              cat $codeql_output >> $codeql_error_log
+            if ! gh codeql-action/init@v3 --languages python --build-mode none 2> "$codeql_output"; then
+              echo "Failed to initialize CodeQL for Python." >> codeql-report.log
+              cat "$codeql_output" >> codeql-report.log
+            else
+              echo "Python CodeQL init succeeded with build-mode none." >> codeql-report.log
             fi
-          } || true
+          } || echo "Python CodeQL init failed unexpectedly." >> codeql-report.log
 
       - name: Upload CodeQL Report
         uses: actions/upload-artifact@v4
