@@ -25,11 +25,12 @@ jobs:
         run: curl -o checkstyle.jar -L https://github.com/checkstyle/checkstyle/releases/download/checkstyle-10.12.5/checkstyle-10.12.5-all.jar
 
       - name: Run Checkstyle
-        run: java -jar checkstyle.jar -c /google_checks.xml -o checkstyle-report.xml . || true
+        run: |
+          java -jar checkstyle.jar -c /google_checks.xml -o checkstyle-report.xml . || true
+        continue-on-error: true
 
       - name: Upload Checkstyle Report
         uses: actions/upload-artifact@v4
         with:
           name: checkstyle-report
           path: checkstyle-report.xml
-
