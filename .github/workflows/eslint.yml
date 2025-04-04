@@ -21,14 +21,22 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
-        run: npm install eslint
+        run: |
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Ensure ESLint is Installed
+        run: npx eslint --version || npm install --global eslint
 
       - name: Run ESLint
-        run: npx eslint . --format json --output-file eslint-report.json || true
+        run: npx eslint . --format json --output-file eslint-report.json
+        continue-on-error: true
 
       - name: Upload ESLint Report
         uses: actions/upload-artifact@v4
         with:
           name: eslint-report
           path: eslint-report.json
-
