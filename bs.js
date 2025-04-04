@@ -16,6 +16,6 @@ function binarySearch(arr, target) {
 }
 
 // Example usage:
-const sortedArray = [1, 3, 5, 7, 9, 11, 13, 15,20];
+const sortedArray = [1, 3, 5, 7, 9, 11, 13, 15];
 console.log(binarySearch(sortedArray, 7)); // Output: 3
 
